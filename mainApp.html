@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html ng-app="app" >
+<lang
+="en">
+<meta charset="UTF-8">
+<title>Accounting System</title>
+
+<link rel="icon" type="image/png" href="http://cdn.sstatic.net/stackoverflow/img/favicon.ico" />
+
+
+<script src="bower_components/angular/angular.min.js"></script>
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/angular-route/angular-route.min.js"></script>
+<script src="bower_components/angular-cookies/angular-cookies.js"></script>
+<script src="bower_components/angular-animate/angular-animate.min.js"></script>
+<script src="bower_components/Chart.js/Chart.js"></script>
+<script src="bower_components/angular-chart.js/dist/angular-chart.js"></script>
+<link href="bower_components/angular-chart.js/dist/angular-chart.css" rel="stylesheet">
+<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+<link href="bower_components/bootstrap/dist/css/bootstrap-theme.css" rel="stylesheet">
+
+<script src="bower_components/ng-table/dist/ng-table.js"></script>
+<link href="bower_components/ng-table/dist/ng-table.css" rel="stylesheet">
+
+<link href="css/style.css" rel="stylesheet">
+
+<script src="js/app.js"></script>
+<script src="js/ctrl/main.ctrl.js"></script>
+<script src="js/ctrl/alert.ctrl.js"></script>
+<script src="js/ctrl/movement.ctrl.js"></script>
+<script src="js/ctrl/tab.ctrl.js"></script>
+<script src="js/ctrl/report.ctrl.js"></script>
+<script src="js/directives/modal.js"></script>
+<script src="js/directives/wjValidationError.js"></script>
+<script src="js/directives/typeheadOpenOnFocus.js"></script>
+<script src="js/services/PromiseUtils.js"></script>
+<script src="js/services/alertManager.js"></script>
+<script src="js/services/modalManager.js"></script>
+
+
+</head>
+<body class="centered" ng-controller="MainController as main" ng-clas>
+
+
+<div id="header" class="page-header">
+    <h1 width="100%">ACCOUNTING SYSTEM</h1>
+</div>
+
+<div class="container">
+
+    <div ng-controller="AlertsCtrl as alert">
+
+        <div ng-include="" src="'pages/templates/alertDiv.html'"></div>
+
+        <div ng-controller="TabController as tab">
+
+            <div ng-include="" src="'pages/tabs/Tab.html'"></div>
+
+            <div ng-include="" src="'pages/tabs/LoginTab.html'"></div>
+            <div ng-include="" src="'pages/tabs/MovementTab.html'"></div>
+            <div ng-include="" src="'pages/tabs/ReportTab.html'"></div>
+            <div ng-include="" src="'pages/tabs/CotizationTab.html'"></div>
+
+
+        </div>
+    </div>
+</div>
+
+<div id="footer" class="page-footer"></div>
+
+</body>
+</html>
+
+
+<!--
+<div class="input-group">
+    <span class="input-group-addon">
+        <span class="glyphicon glyphicon-search"></span>
+    </span>
+    <input type="text" class="form-control" ng-model="main.searchInput">
+</div>
+<h3>A list of TV shows</h3>
+<ul class="list-group">
+    <li class="list-group-item"
+        ng-repeat="show in main.shows | filter:main.searchInput | orderBy:main.order.key:main.order.reverse"><span
+            class="glyphicon glyphicon-star" ng-if="show.favorite"></span> {{show.title}} <span class="badge">{{show.year}}</span>
+    </li>
+</ul>
+
+-->
+<!--
+<div class="form-group">
+    <label>Title</label>
+    <input type="text" class="form-control" ng-model="main.new.title" required/>
+</div>
+<div class="form-group">
+    <label>Year</label>
+    <input type="number" min="1900" max="2030" class="form-control" ng-model="main.new.year" required/>
+</div>
+<div class="row">
+    <div class="col-xs-6">
+        <label>Favorite: <input type="checkbox" ng-model="main.new.favorite"/></label>
+    </div>
+    <div class="col-xs-6">
+        <button class="btn btn-success pull-right"><span class="glyphicon glyphicon-plus-sign"></span> Add
+        </button>
+    </div>
+</div>
+-->

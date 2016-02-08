@@ -1,0 +1,13 @@
+<div>
+    <label class="btn btn-info" ng-model="tab.radioModel.login" uib-btn-radio="true" ng-click="setSelected(0)"
+           ng-show="!authenticated">Login</label>
+    <label class="btn btn-info" ng-model="tab.radioModel.movement" uib-btn-radio="true" ng-click="setSelected(1)"
+           ng-show="authenticated">Movement</label>
+    <label class="btn btn-info" ng-model="tab.radioModel.report" uib-btn-radio="true" ng-click="setSelected(2)"
+           ng-show="authenticated">Report</label>
+    <label class="btn btn-info" ng-model="tab.radioModel.cotization" uib-btn-radio="true" ng-click="setSelected(3)"
+           ng-show="authenticated">Curency Cotization</label>
+    <label class="btn btn-danger" ng-model="tab.radioModel.logout" uib-btn-radio="true"
+           ng-click="setSelected(0);logout()" ng-show="authenticated">Logout</label>
+</div>
+<br>

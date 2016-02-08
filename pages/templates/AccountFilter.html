@@ -1,0 +1,31 @@
+<div class="accountFilters" style="width:100%">
+    <div class="filterColumn">
+        <b><u>Currency</u></b><br>
+        <div ng-repeat="currency in rp.currencies">
+            <label><input type="checkbox" ng-click="rp.restartAccountReport(false)"
+                          ng-model="currency.selected">{{currency.symbol}}</label>
+            <br>
+        </div>
+    </div>
+
+    <div class="filterColumn">
+        <b><u>Sadder</u></b><br>
+        <div ng-repeat="sadder in rp.sadders">
+            <label> <input type="checkbox" ng-click="rp.restartAccountReport(false)"
+                           ng-model="sadder.selected">{{sadder.symbol}}</label>
+        </div>
+    </div>
+    <div class="filterColumn">
+        <b><u>Type Of Account</u></b><br>
+        <div ng-repeat="accountType in rp.accountsType">
+            <label><input type="checkbox"
+                          ng-click="rp.restartAccountReport(false)"
+                          ng-model="accountType.selected">{{accountType.text}}</label>
+        </div>
+    </div>
+    <div style="clear:left; margin-bottom: 25px;width:100%">
+        <button type="button" class="btn btn-success centered" ng-click="rp.closeAccountFilter()">
+            <i class="glyphicon glyphicon-check"></i> Close Filter
+        </button>
+    </div>
+</div>

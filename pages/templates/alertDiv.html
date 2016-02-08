@@ -1,0 +1,8 @@
+<div ng-repeat="(key,val) in alert.alerts " class="alert {{key}}">
+    <div id="alertDiv" ng-repeat="msg in val track by $index" class="showNewLine">{{msg.Message}}
+        <a ng-show="msg.Movement" ng-click='alert.undo(msg.Id)'>Undo </a>
+        <a ng-show="msg.Movement" ng-click='alert.openMovementReport(msg.Id)'>See Movement</a>
+        <a ng-click='alert.clearAlerts()'>Close</a>
+    </div>
+</div>
+

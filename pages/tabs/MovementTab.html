@@ -1,0 +1,97 @@
+<div id="movementController" ng-show="isSelected(1)" ng-controller="MovementController as mov">
+
+    <form autocomplete="off" name="addMovement" class="form"
+          ng-submit="mov.addNewMovement(addMovement.$valid)">
+
+        <div class="form-group">
+            <label class="ClickableLabel" ng-click="mov.openAccount(mov.selectedOriginAccount)" >Origin Account</label>
+            <input id="originAccount" type="text" ng-model="mov.selectedOriginAccount"
+                   uib-typeahead="accountorig as accountorig.name for accountorig in mov.originAccounts | filter:$viewValue "
+                   wj-validation-error="(mov.originAccounts.indexOf(mov.selectedOriginAccount) != -1) ? '' : 'Pick an Origin Account' "
+                   typeahead-min-length="0"
+                   class="form-control"
+                   style="width:99%"
+                   placeholder="Origin Account"
+
+                   required/>
+        </div>
+
+        <div class="form-group">
+            <label class="ClickableLabel" ng-click="mov.openAccount(mov.selectedDestinationAccount)">Destination Account</label>
+
+            <button  type="button" style="position:relative;top:-8px" ng-click="mov.exchangeAccounts()" class="btn btn-default pull-right" >
+                <span class="glyphicon glyphicon-refresh"></span>
+            </button>
+
+            <input id="destAccount" type="text" ng-model="mov.selectedDestinationAccount"
+                   uib-typeahead="accountdest as accountdest.name for accountdest in mov.destinationAccounts | filter:$viewValue "
+                   wj-validation-error="((mov.destinationAccounts.indexOf(mov.selectedDestinationAccount) != -1) && (mov.selectedDestinationAccount != mov.selectedOriginAccount)) ? '' : 'Pick a Destination Account, different from Origin.'"
+                   typeahead-min-length="0"
+                   class="form-control "
+                   style="width:99%"
+                   placeholder="Destination Account"
+                   required/>
+        </div>
+
+        <div class="form-group">
+            <label>Category</label>
+            <input id="category" type="text" ng-model="mov.selectedCategory"
+                   uib-typeahead="category as category.name for category in mov.categories | filter:$viewValue "
+                   wj-validation-error="(mov.categories.indexOf(mov.selectedCategory) != -1) ? '' : 'Pick a Category' "
+                   typeahead-min-length="0"
+                   typeahead-on-select="mov.getDetails()"
+                   class="form-control"
+                   style="width:99%"
+                   placeholder="Category"
+                   required/>
+        </div>
+
+        <div class="form-group">
+            <label>Detail</label>
+            <input id="detail" type="text" ng-model="mov.selectedDetail"
+                   uib-typeahead="detail as detail.name for detail in mov.details | filter:$viewValue "
+                   wj-validation-error="(mov.details.indexOf(mov.selectedDetail) != -1) ? '' : 'Pick a Detail' "
+                   typeahead-min-length="0"
+                   class="form-control"
+                   style="width:99%"
+                   placeholder="Detail"
+                   required/>
+        </div>
+
+        <div class="form-inline">
+            <label>Amount</label>
+            <input type="number" min="1" class="form-control" style="width:15%" value="0" ng-model="mov.amount"
+                   placeholder="Amount"
+                   required/>
+            <select id="currencies" class="form-control" style="width:7%" ng-model="mov.selectedCurrency"
+                    ng-options="currency.symbol for currency in mov.currencies" required></select>
+            <p class="input-group" style="position: relative;top:5px">
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-default" ng-click="mov.updateDate($event, e.id,this)">
+                      Past Date
+                  </button>
+                </span>
+                <input ng-disabled="mov.actualDate" type="text" class="form-control"
+                       uib-datepicker-popup="{{format}}" ng-model="mov.date" is-open="mov.openedPopUp"
+                       min-date="mov.minDate" max-date="mov.maxDate" close-text="Close" required
+                       wj-validation-error="(mov.isValidDate(mov.date)) ? '' : 'Pick a Valid Date'"
+                />
+                <span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="mov.openCalendar()"><i
+                        class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+            </p>
+        </div>
+
+        <div class="form-group form-inline">
+            <label>Comment</label><br>
+            <span>  </span>​<textarea id="txtArea" class="form-control" style="width:90%" ng-model="mov.comment"
+                                      required></textarea>
+            <button class="btn pull-right"
+                    ng-class="{true:'btn-success', false:'btn-danger'}[!addMovement.$invalid]">
+                <span class="glyphicon glyphicon-plus-sign"></span> Add
+            </button>
+        </div>
+
+    </form>
+</div>

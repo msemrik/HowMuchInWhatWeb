@@ -1,0 +1,129 @@
+<div ng-show="isSelected(2)">
+    <div ng-controller="reportController as rp">
+            <uib-accordion style="width:90%" close-others="true">
+
+
+            <uib-accordion-group id="accountReportAccordion" heading="Report By Account"
+                                 is-open="rp.tabStatus.isAccountReportOpen">
+                <form autocomplete="off" id="reportByAccount" name="reportByAccount" class="form"
+                      style="margin-bottom: 50px;overflow:hidden;" ng-submit="rp.getAccountReport()">
+
+                    <div class="sideBySide" style="position: relative; top: 5px; ">
+                        <label>Select your Account:&nbsp;&nbsp;  </label>
+                    </div>
+                    <input id="reportAccount" type="text" ng-model="rp.selectedAccountForAccountReport"
+                           uib-typeahead="acc as acc.name for acc in rp.accounts | filter:$viewValue | filter:rp.filterAccounts "
+                           typeahead-min-length="0"
+                           wj-validation-error="(rp.accountIsInArray(rp.selectedAccountForAccountReport,rp.accounts) == true) ? '' : 'Pick a valid Account.' "
+                           class="form-control sideBySide" style="width:60%;float:left;vertical-align: middle"
+                           required/>
+                    &nbsp;
+
+                    <button class="btn btn-info sideBySide" style="vertical-align: top"
+                            ng-class="{true:'btn-success', false:'btn-info'}[!reportByAccount.$invalid]">
+                        <i class="glyphicon glyphicon-search"></i>
+                        Search
+                    </button>
+                    <button id="accountReportFilter"
+                            ng-click="rp.openAccountFilter()"
+                            type="button"
+                            class="btn btn-info sideBySide">
+                        <i class="glyphicon glyphicon-filter"></i>Account Filter
+                    </button>
+                    <div ng-click="rp.closeAccountFilter()" ng-show="alert.modalManager.isShowingModal"
+                         class="modal"></div>
+                    <div ng-show="rp.isAccountFilterShown" ng-include=""
+                         src="'pages/templates/AccountFilter.html'"></div>
+                </form>
+
+
+                <div style="width:100%" ng-show="rp.infoLabel.length > 0">
+                    <div class="sideBySide centered" style="width:20%">
+                        <label><b><u>Account Information</u></b></label>
+
+                        <span ng-repeat="info in rp.infoLabel">
+                            <b>{{info}}:</b> {{rp.infoData[$index]}}<br>
+                        </span>
+
+                        <div class="center-block" style="margin-top: 10%;">
+                            <div class="center-block">
+                                <button class="btn btn-info center-block" ng-click="rp.reportLastMovements()">See Last
+                                    Movements
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sideBySide" style="width:80%">
+                        <canvas id="line" class="chart chart-line" chart-data="rp.data"
+                                chart-labels="rp.labels" chart-legend="true" chart-series="rp.series"
+                                chart-options="rp.options" chart-click="onClick">
+                        </canvas>
+                    </div>
+                </div>
+            </uib-accordion-group>
+
+
+            <uib-accordion-group id='movementReportAccordion' heading="Report By Movements"
+                                 is-open="rp.tabStatus.isMovementReportOpen">
+                <button ng-click="rp.test()">Test</button>
+                <button ng-click="rp.test2()">Test</button>
+
+
+                <button id="movementReportFilter"
+                        ng-click="rp.openMovementFilter()"
+                        type="button"
+                        class="btn btn-info pull-right">
+                    <i class="glyphicon glyphicon-filter"></i>Movement Filter
+                </button>
+
+                <button ng-click="rp.resetMovementReportFilter ()"
+                        type="button" class="btn btn-danger pull-right">
+                    <i class="glyphicon glyphicon-erase"></i>Erase Filter
+                </button>
+
+                <div ng-click="rp.closeMovementFilter()" ng-show="alert.modalManager.isShowingModal"
+                     class="modal"></div>
+                <div ng-show="rp.isMovementFilterShown" ng-include=""
+                     src="'pages/templates/MovementFilter.html'"></div>
+
+
+                <div id="movementReportTable" class="sideBySide" style="width:100%">
+
+                    <table ng-table="rp.tableParams" class="table table-condensed table-bordered table-striped">
+                        <tr ng-repeat="movements in $data" ng-class="{true:'selected-row', false:''}[movements.selected]">
+
+                            <td title="'Id'" sortable="'id'"><span tooltip-placement="top"
+                                                                   uib-tooltip="{{movements.commentary}}">{{movements.id}}</span>
+                            </td>
+                            <td title="'Date'" sortable="'movementDate'">{{movements.movementDate | date:
+                                'dd/MM/yyyy'}}
+                            </td>
+                            <td title="'Amount'" sortable="'amount'">{{movements.currency.symbol}}
+                                {{movements.amount}}
+                            </td>
+                            <td title="'Orig Account'" sortable="'origAccount.name'"><a
+                                    ng-click="rp.openAccountReport(movements.origAccount)">{{movements.origAccount.name}}</a>
+                            </td>
+                            <td title="'Orig Sadder'" sortable="'origSadder'">{{movements.origSadder}}</td>
+                            <td title="'Dest Account'" sortable="'destAccount.name'"><a
+                                    ng-click="rp.openAccountReport(movements.destAccount)">{{movements.destAccount.name}}</a>
+                            </td>
+                            <td title="'Dest Sadder'" sortable="'origAccount'">{{movements.destSadder}}</td>
+                            <td title="'Category'" sortable="'detail.category.name'">
+                                {{movements.detail.category.name}}
+                            </td>
+                            <td title="'Detail'" sortable="'detail.name'">{{movements.detail.name}}</td>
+                            <td title="'Redo Movement'">
+                                <button ng-click="rp.reDoMovement(movements)"
+                                        type="button" class="btn btn-default centered">
+                                    <i class="glyphicon glyphicon-repeat"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+            </uib-accordion-group>
+        </uib-accordion>
+    </div>
+</div>
