@@ -17,6 +17,7 @@ app.controller("AlertsCtrl", function ($scope, alertsManager, modalManager, $roo
         $rootScope.$emit('loadReportFromOutside', id,'movement');
     }
 
+
     alert.alerts = alertsManager.alerts;
     alert.toggleModalWindow();
     alert.modalManager = modalManager.modalManager;

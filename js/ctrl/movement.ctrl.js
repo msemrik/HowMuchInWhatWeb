@@ -21,6 +21,7 @@ app.controller("MovementController", function ($scope, $http, PromiseUtils, aler
         mv.scrollWindow("#header");
 
         var jsError = {"title": "Error Retrieving data", "type": "error"};
+
         var headers = {'X-XSRF-TOKEN': $cookies.get('XSRF-TOKEN')};
         var categoriesCall = $http({
             method: 'POST',
@@ -31,14 +32,22 @@ app.controller("MovementController", function ($scope, $http, PromiseUtils, aler
         mv.activeCall('+');
         PromiseUtils.getPromiseHttpResult(categoriesCall)
             .then(function (result) {
-                mv.categories = result;
+                resultJson = angular.fromJson(result.body);
+                if (result.statusCode == "OK") {
+                    mv.categories = resultJson.object;
+                } else {
+                    jsError["message"] = resultJson.message;
+                    jsError["stackTrace"] = resultJson.stackTrace;
+                    alertsManager.showBootStrapModal(jsError);
+                }
                 mv.activeCall('-');
             }, function (arguments) {
-                jsError["message"] = "Error getting Categories";
+                jsError["message"] = "Connection Error, please retry.";
                 alertsManager.showBootStrapModal(jsError)
                 if (arguments[0] == null || arguments[0].status == 403) {
                     $rootScope.$broadcast("authenticateConnection");
                 }
+                mv.activeCall('-');
 
             })
 
@@ -52,15 +61,23 @@ app.controller("MovementController", function ($scope, $http, PromiseUtils, aler
         mv.activeCall('+');
         PromiseUtils.getPromiseHttpResult(accountsCall)
             .then(function (result) {
-                mv.destinationAccounts = result;
-                mv.originAccounts = mv.destinationAccounts;
+                resultJson = angular.fromJson(result.body);
+                if (result.statusCode == "OK") {
+                    mv.destinationAccounts = resultJson.object;
+                    mv.originAccounts = mv.destinationAccounts;
+                } else {
+                    jsError["message"] = resultJson.message;
+                    jsError["stackTrace"] = resultJson.stackTrace;
+                    alertsManager.showBootStrapModal(jsError);
+                }
                 mv.activeCall('-');
             }, function (arguments) {
-                jsError["message"] = "Error getting Accounts";
+                jsError["message"] = "Connection Error, please retry.";
                 alertsManager.showBootStrapModal(jsError)
                 if (arguments[0] == null || arguments[0].status == 403) {
                     $rootScope.$broadcast("authenticateConnection");
                 }
+                mv.activeCall('-');
             })
 
 
@@ -73,14 +90,22 @@ app.controller("MovementController", function ($scope, $http, PromiseUtils, aler
         mv.activeCall('+');
         PromiseUtils.getPromiseHttpResult(currenciesCall)
             .then(function (result) {
-                mv.currencies = result;
+                resultJson = angular.fromJson(result.body);
+                if (result.statusCode == "OK") {
+                    mv.currencies = resultJson.object;
+                } else {
+                    jsError["message"] = resultJson.message;
+                    jsError["stackTrace"] = resultJson.stackTrace;
+                    alertsManager.showBootStrapModal(jsError);
+                }
                 mv.activeCall('-');
             }, function (arguments) {
-                jsError["message"] = "Error getting Currencies";
+                jsError["message"] = "Connection Error, please retry.";
                 alertsManager.showBootStrapModal(jsError)
                 if (arguments[0] == null || arguments[0].status == 403) {
                     $rootScope.$broadcast("authenticateConnection");
                 }
+                mv.activeCall('-');
             })
 
 
@@ -90,8 +115,6 @@ app.controller("MovementController", function ($scope, $http, PromiseUtils, aler
         mv.amount = '';
         mv.comment = '';
     };
-
-
 
 
     mv.getDetails = function (selectedDetail) {
@@ -107,16 +130,23 @@ app.controller("MovementController", function ($scope, $http, PromiseUtils, aler
             });
             PromiseUtils.getPromiseHttpResult(detailsCall)
                 .then(function (result) {
-                    mv.details = result;
-                    if (selectedDetail != undefined) {
-                        mv.selectedDetail = mv.getElement(mv.details, selectedDetail);
-                    }
-                    else {
-                        mv.selectedDetail = mv.details[0];
+                    resultJson = angular.fromJson(result.body);
+                    if (result.statusCode == "OK") {
+                        mv.details = resultJson.object;
+                        if (selectedDetail != undefined) {
+                            mv.selectedDetail = mv.getElement(mv.details, selectedDetail);
+                        }
+                        else {
+                            mv.selectedDetail = mv.details[0];
+                        }
+                    } else {
+                        jsError["message"] = resultJson.message;
+                        jsError["stackTrace"] = resultJson.stackTrace;
+                        alertsManager.showBootStrapModal(jsError);
                     }
                 }, function (arguments) {
-                    jsError["message"] = "Error getting Details";
-                    alertsManager.showModal(jsError);
+                    jsError["message"] = "Connection Error, please retry.";
+                    alertsManager.showBootStrapModal(jsError);
                     if (arguments[0] == null || arguments[0].status == 403) {
                         $rootScope.$broadcast("authenticateConnection");
                     }
@@ -155,30 +185,31 @@ app.controller("MovementController", function ($scope, $http, PromiseUtils, aler
         PromiseUtils.getPromiseHttpResult(newMVCall)
             .then(function (result) {
                 resultJson = angular.fromJson(result.body);
-                if (result.statusCode == "OK")
+                if (result.statusCode == "OK") {
                     object = {
-                        Id: resultJson.id,
-                        Message: resultJson.message,
+                        Id: resultJson.object,
+                        Message: "Movement Successfully Saved",
                         Style: 'alert-success',
                         Movement: true
                     };
-                else
-                    object = {
-                        Id: '',
-                        Message: resultJson.message,
-                        Style: 'alert-danger',
-                        Movement: false
+                    alertsManager.addAlert(object);
+                }
+                else {
+                    var jsError = {
+                        "title": "Error Creating Movement",
+                        "type": "error",
+                        "message": resultJson.message,
+                        "stackTrace": resultJson.stackTrace
                     };
-                alertsManager.addAlert(object);
-
+                    alertsManager.showBootStrapModal(jsError);
+                }
             }, function (arguments) {
-                object = {
-                    Id: '',
-                    Message: 'Connection Error, please retry.',
-                    Style: 'alert-danger',
-                    Movement: false
+                var jsError = {
+                    "title": "Error Creating Movement",
+                    "type": "error",
+                    "message": "Connection Error, please retry."
                 };
-                alertsManager.addAlert(object);
+                alertsManager.showBootStrapModal(jsError);
                 if (arguments[0] == null || arguments[0].status == 403) {
                     $rootScope.$broadcast("authenticateConnection");
                 }
@@ -200,42 +231,37 @@ app.controller("MovementController", function ($scope, $http, PromiseUtils, aler
         PromiseUtils.getPromiseHttpResult(deleteMVCall)
             .then(function (result) {
                 resultJson = angular.fromJson(result.body);
-                if (result.statusCode == "OK")
+                if (result.statusCode == "OK") {
                     object = {
                         Id: resultJson.id,
                         Message: resultJson.message,
                         Style: 'alert-success',
                         Movement: false
                     };
-                else
-                    object = {
-                        Id: '',
-                        Message: resultJson.message,
-                        Style: 'alert-danger',
-                        Movement: false
+                    alertsManager.addAlert(object);
+
+                }
+                else {
+                    var jsError = {
+                        "title": "Error Creating Movement",
+                        "type": "error",
+                        "message":  resultJson.message,
+                        "stackTrace": resultJson.stackTrace
                     };
-                alertsManager.addAlert(object);
-            }, function (reject) {
-                object = {
-                    Id: '',
-                    Message: 'Connection Error, please retry.',
-                    Style: 'alert-danger',
-                    Movement: false
+                    alertsManager.showBootStrapModal(jsError);
+                }
+            }, function (arguments) {
+                var jsError = {
+                    "title": "Error Creating Movement",
+                    "type": "error",
+                    "message": "Connection Error, please retry.",
                 };
-                alertsManager.addAlert(object);
+                alertsManager.showBootStrapModal(jsError);
                 if (arguments[0] == null || arguments[0].status == 403) {
                     $rootScope.$broadcast("authenticateConnection");
                 }
             })
     }
-
-
-
-
-
-
-
-
 
 
     mv.getElement = function (array, element) {
@@ -250,7 +276,6 @@ app.controller("MovementController", function ($scope, $http, PromiseUtils, aler
     }
 
 
-
     mv.exchangeAccounts = function () {
         var temp;
         temp = (mv.selectedOriginAccount != undefined) ? mv.selectedOriginAccount : null;
@@ -259,26 +284,25 @@ app.controller("MovementController", function ($scope, $http, PromiseUtils, aler
     }
 
 
+    mv.openAccount = function (account) {
 
-    mv.openAccount = function(account){
-
-        if(mv.originAccounts.indexOf(account) != -1)
-        {
-            $rootScope.$emit('loadReportFromOutside', account,'account');
+        if (mv.originAccounts.indexOf(account) != -1) {
+            $rootScope.$emit('loadReportFromOutside', account, 'account');
         }
         else {
-            var jsError = {"title": "Error Creating Account Report", "type": "error", "message":"Please, select an account."};
+            var jsError = {
+                "title": "Error Creating Account Report",
+                "type": "error",
+                "message": "Please, select an account."
+            };
             alertsManager.showBootStrapModal(jsError)
         }
     }
 
 
-
-
     mv.scrollWindow = function (scrollTo) {
         $('html, body').animate({scrollTop: $(scrollTo).offset().top}, 500);
     }
-
 
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -359,7 +383,6 @@ app.controller("MovementController", function ($scope, $http, PromiseUtils, aler
             $("#date").removeAttr('required');
         }
     };
-
 
 
 });

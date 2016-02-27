@@ -41,7 +41,6 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
     });
 
 
-
     $scope.$watch('rp.tabStatus.isAccountReportOpen', function (isOpen) {
         if (isOpen) {
             rp.initializeAccountReportTab()
@@ -83,7 +82,6 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
     }
 
 
-
     /////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -111,14 +109,23 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
 
         PromiseUtils.getPromiseHttpResult(accountsCall)
             .then(function (result) {
-                rp.accounts = result;
-            }, function (arguments) {
-                jsError["message"] = "Error getting Accounts";
-                alertsManager.showBootStrapModal(jsError)
-                if (arguments[0] == null || arguments[0].status == 403) {
-                    $rootScope.$broadcast("authenticateConnection");
+                    resultJson = angular.fromJson(result.body);
+                    if (result.statusCode == "OK") {
+                        rp.accounts = resultJson.object;
+                    } else {
+                        jsError["message"] = resultJson.message;
+                        jsError["stackTrace"] = resultJson.stackTrace;
+                        alertsManager.showBootStrapModal(jsError);
+                    }
+                },
+                function (arguments) {
+                    jsError["message"] = "Connection Error, please retry.";
+                    alertsManager.showBootStrapModal(jsError)
+                    if (arguments[0] == null || arguments[0].status == 403) {
+                        $rootScope.$broadcast("authenticateConnection");
+                    }
                 }
-            })
+            )
 
 
         var currenciesCall = $http({
@@ -130,12 +137,19 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
 
         PromiseUtils.getPromiseHttpResult(currenciesCall)
             .then(function (result) {
-                rp.currencies = result;
-                $.each(rp.currencies, function (index, currency) {
-                    currency["selected"] = true;
-                });
+                resultJson = angular.fromJson(result.body);
+                if (result.statusCode == "OK") {
+                    rp.currencies = resultJson.object;
+                    $.each(rp.currencies, function (index, currency) {
+                        currency["selected"] = true;
+                    });
+                } else {
+                    jsError["message"] = resultJson.message;
+                    jsError["stackTrace"] = resultJson.stackTrace;
+                    alertsManager.showBootStrapModal(jsError);
+                }
             }, function (arguments) {
-                jsError["message"] = "Error getting Currencies";
+                jsError["message"] = "Connection Error, please retry.";
                 alertsManager.showBootStrapModal(jsError);
                 if (arguments[0] == null || arguments[0].status == 403) {
                     $rootScope.$broadcast("authenticateConnection");
@@ -206,8 +220,11 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
                     alertsManager.showBootStrapModal(jsError)
                 }
             }, function (arguments) {
-                jsError["message"] = "Error getting Report";
-                alertsManager.showBootStrapModal(jsError)
+                jsError["message"] = "Connection Error, please retry.";
+                alertsManager.showBootStrapModal(jsError);
+                if (arguments[0] == null || arguments[0].status == 403) {
+                    $rootScope.$broadcast("authenticateConnection");
+                }
             })
     };
 
@@ -265,7 +282,7 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
         rp.filterMovementByMonth(points[0].label);
 
     };
-    //Hack to avoid chart from flicking with old data
+//Hack to avoid chart from flicking with old data
     $scope.$on('create', function (event, chart) {
         if (typeof $chart !== "undefined") {
             $chart.destroy();
@@ -275,9 +292,9 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
     });
 
 
-    ///////////////////////////////////////////////////////////////////////////////
-    /////////////////           Account  Report Filter          ///////////////////
-    ///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+/////////////////           Account  Report Filter          ///////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 
     rp.openAccountFilter = function () {
@@ -291,7 +308,6 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
         $('html, body').animate({scrollTop: $("#accountReportAccordion").offset().top}, 1000);
         rp.isAccountFilterShown = false;
     };
-
 
 
     rp.filterMovementByMonth = function (month) {
@@ -344,9 +360,9 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
     };
 
 
-    ////////////////////////////////////////////////////////////////////////////////
-    /////////////////           Outside Account Report           ///////////////////
-    ///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/////////////////           Outside Account Report           ///////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 
     rp.outSidefilter = {
@@ -403,11 +419,18 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
 
         PromiseUtils.getPromiseHttpResult(accountsCall)
             .then(function (result) {
-                rp.accounts = result;
-                $.each(rp.accounts, function (index, account) {
-                    account["origSelected"] = true;
-                    account["destSelected"] = true;
-                });
+                resultJson = angular.fromJson(result.body);
+                if (result.statusCode == "OK") {
+                    rp.accounts = resultJson.object;
+                    $.each(rp.accounts, function (index, account) {
+                        account["origSelected"] = true;
+                        account["destSelected"] = true;
+                    });
+                } else {
+                    jsError["message"] = resultJson.message;
+                    jsError["stackTrace"] = resultJson.stackTrace;
+                    alertsManager.showBootStrapModal(jsError);
+                }
             }, function (arguments) {
                 jsError["message"] = "Error getting Accounts";
                 alertsManager.showBootStrapModal(jsError)
@@ -426,12 +449,19 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
 
         PromiseUtils.getPromiseHttpResult(currenciesCall)
             .then(function (result) {
-                rp.currencies = result;
-                $.each(rp.currencies, function (index, currency) {
-                    currency["selected"] = true;
-                });
+                resultJson = angular.fromJson(result.body);
+                if (result.statusCode == "OK") {
+                    rp.currencies = resultJson.object;
+                    $.each(rp.currencies, function (index, currency) {
+                        currency["selected"] = true;
+                    });
+                } else {
+                    jsError["message"] = resultJson.message;
+                    jsError["stackTrace"] = resultJson.stackTrace;
+                    alertsManager.showBootStrapModal(jsError);
+                }
             }, function (arguments) {
-                jsError["message"] = "Error getting Currencies";
+                jsError["message"] = "Connection Error, please retry.";
                 alertsManager.showBootStrapModal(jsError);
                 if (arguments[0] == null || arguments[0].status == 403) {
                     $rootScope.$broadcast("authenticateConnection");
@@ -447,20 +477,29 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
 
         PromiseUtils.getPromiseHttpResult(categoriesCall)
             .then(function (result) {
-                rp.categories = result;
-                $.each(rp.categories, function (index, category) {
-                    category['selected'] = false;
-                    $.each(category.details, function (index, detail) {
-                        detail['selected'] = true;
-                    });
-                });
-            }, function (arguments) {
-                jsError["message"] = "Error getting Categories";
-                alertsManager.showBootStrapModal(jsError);
-                if (arguments[0] == null || arguments[0].status == 403) {
-                    $rootScope.$broadcast("authenticateConnection");
+                    resultJson = angular.fromJson(result.body);
+                    if (result.statusCode == "OK") {
+                        rp.categories = resultJson.object;
+                        $.each(rp.categories, function (index, category) {
+                            category['selected'] = false;
+                            $.each(category.details, function (index, detail) {
+                                detail['selected'] = true;
+                            });
+                        });
+                    } else {
+                        jsError["message"] = resultJson.message;
+                        jsError["stackTrace"] = resultJson.stackTrace;
+                        alertsManager.showBootStrapModal(jsError);
+                    }
+
+                }, function (arguments) {
+                    jsError["message"] = "Connection Error, please retry.";
+                    alertsManager.showBootStrapModal(jsError);
+                    if (arguments[0] == null || arguments[0].status == 403) {
+                        $rootScope.$broadcast("authenticateConnection");
+                    }
                 }
-            })
+            )
 
 
         rp.sadders = [
@@ -509,19 +548,18 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
                     rp.checkOutSideMovementFilter();
                 }
                 else {
-                    jsError["message"] = "Error getting Report. Error: " + result.message;
-                    alertsManager.showBootStrapModal(jsError)
+                    jsError["message"] = resultJson.message;
+                    jsError["stackTrace"] = resultJson.stackTrace;
+                    alertsManager.showBootStrapModal(jsError);
                 }
             }, function (arguments) {
-                jsError["message"] = "Error getting Report";
+                jsError["message"] = "Connection Error, please retry.";
                 alertsManager.showBootStrapModal(jsError)
                 if (arguments[0] == null || arguments[0].status == 403) {
                     $rootScope.$broadcast("authenticateConnection");
                 }
             })
     }
-
-
 
 
     rp.openAccountReport = function (account) {
@@ -701,7 +739,6 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
     }
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 /////////////////           Outside Movement Report         ///////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -736,32 +773,6 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     rp.test = function () {
         alert(rp.tableParams);
 
@@ -771,15 +782,15 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
     rp.test1 = true;
     rp.test2 = function () {
         /*var index2 = 0;
-        $.each(rp.movement, function (index, movement) {
-            movement.selected = test;
-            index2 = index2 + 1;
-            if(index2 == 3){
-                test = !test;
-                index2 = 0;
-            }
-        });
-*/
+         $.each(rp.movement, function (index, movement) {
+         movement.selected = test;
+         index2 = index2 + 1;
+         if(index2 == 3){
+         test = !test;
+         index2 = 0;
+         }
+         });
+         */
 
         //modalManager.toggleModalWindow();
         //rp.test1 = !rp.test1;
