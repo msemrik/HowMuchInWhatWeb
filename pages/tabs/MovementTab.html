@@ -1,7 +1,7 @@
 <div id="movementController" ng-show="isSelected(1)" ng-controller="MovementController as mov">
 
     <form autocomplete="off" name="addMovement" class="form"
-          ng-submit="mov.addNewMovement(addMovement.$valid)">
+          ng-submit="mov.validateMovement()">
 
         <div class="form-group">
             <label class="ClickableLabel" ng-click="mov.openAccount(mov.selectedOriginAccount)" >Origin Account</label>

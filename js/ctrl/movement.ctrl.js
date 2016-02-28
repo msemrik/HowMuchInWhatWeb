@@ -1,4 +1,4 @@
-app.controller("MovementController", function ($scope, $http, PromiseUtils, alertsManager, $rootScope, $cookies) {
+app.controller("MovementController", function ($scope, $http, PromiseUtils, alertsManager, $rootScope, $cookies, $uibModal) {
 
     var mv = this;
 
@@ -158,232 +158,299 @@ app.controller("MovementController", function ($scope, $http, PromiseUtils, aler
     }
 
 
-    mv.addNewMovement = function () {
+    mv.validateMovement = function () {
 
-        if (mv.actualDate) {
-            date = new Date();
+        var validCurrencyError = mv.validCurrency();
+
+        if (validCurrencyError.length > 0) {
+            var jsError = {"title": "Error Creating Movement", "type": "error", "message": validCurrencyError};
+            alertsManager.showBootStrapModal(jsError);
         }
-        var headers = {'X-XSRF-TOKEN': $cookies.get('XSRF-TOKEN')};
+        else {
+            var requiresCurrencyCotization = mv.requiresCurrencyCotization();
+            if (requiresCurrencyCotization != undefined) {
 
-        var newMVCall = $http({
-            method: 'POST',
-            url: 'http://localhost:8090/createMovement',
-            headers: headers,
-            withCredentials: true,
-            data: JSON.stringify({
-                "origAccount": mv.selectedOriginAccount.id,
-                "destAccount": mv.selectedDestinationAccount.id,
-                "amount": mv.amount,
-                "currency": mv.selectedCurrency.id,
-                "movementDate": mv.date,
-                "isActualDate": mv.actualDate,
-                "category": mv.selectedCategory.id,
-                "detail": mv.selectedDetail.id,
-                "comment": mv.comment
-            })
-        });
-        PromiseUtils.getPromiseHttpResult(newMVCall)
-            .then(function (result) {
-                resultJson = angular.fromJson(result.body);
-                if (result.statusCode == "OK") {
-                    object = {
-                        Id: resultJson.object,
-                        Message: "Movement Successfully Saved",
-                        Style: 'alert-success',
-                        Movement: true
-                    };
-                    alertsManager.addAlert(object);
-                }
-                else {
-                    var jsError = {
-                        "title": "Error Creating Movement",
-                        "type": "error",
-                        "message": resultJson.message,
-                        "stackTrace": resultJson.stackTrace
-                    };
-                    alertsManager.showBootStrapModal(jsError);
-                }
-            }, function (arguments) {
-                var jsError = {
-                    "title": "Error Creating Movement",
-                    "type": "error",
-                    "message": "Connection Error, please retry."
-                };
-                alertsManager.showBootStrapModal(jsError);
-                if (arguments[0] == null || arguments[0].status == 403) {
-                    $rootScope.$broadcast("authenticateConnection");
-                }
-            })
-    };
-
-
-    mv.undoMovement = function (movId) {
-        date = new Date();
-        var headers = {'X-XSRF-TOKEN': $cookies.get('XSRF-TOKEN')};
-
-        var deleteMVCall = $http({
-            method: 'POST',
-            url: 'http://localhost:8090/deleteMovement',
-            headers: headers,
-            withCredentials: true,
-            params: {movId: movId}
-        });
-        PromiseUtils.getPromiseHttpResult(deleteMVCall)
-            .then(function (result) {
-                resultJson = angular.fromJson(result.body);
-                if (result.statusCode == "OK") {
-                    object = {
-                        Id: resultJson.id,
-                        Message: resultJson.message,
-                        Style: 'alert-success',
-                        Movement: false
-                    };
-                    alertsManager.addAlert(object);
-
-                }
-                else {
-                    var jsError = {
-                        "title": "Error Creating Movement",
-                        "type": "error",
-                        "message":  resultJson.message,
-                        "stackTrace": resultJson.stackTrace
-                    };
-                    alertsManager.showBootStrapModal(jsError);
-                }
-            }, function (arguments) {
-                var jsError = {
-                    "title": "Error Creating Movement",
-                    "type": "error",
-                    "message": "Connection Error, please retry.",
-                };
-                alertsManager.showBootStrapModal(jsError);
-                if (arguments[0] == null || arguments[0].status == 403) {
-                    $rootScope.$broadcast("authenticateConnection");
-                }
-            })
-    }
-
-
-    mv.getElement = function (array, element) {
-        var returnObject;
-        for (var i = 0; i < array.length; i++) {
-            if (array[i].id == element.id) {
-                returnObject = array[i];
-                break;
+                requiresCurrencyCotization.result.then(function (value) {
+                    if (value != undefined) {
+                        mv.currencyCotization = value;
+                        mv.createMovement();
+                    }
+                }, function () {
+                    $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
+            else {
+                mv.createMovement();
             }
         }
-        return returnObject;
     }
 
+        mv.createMovement = function () {
 
-    mv.exchangeAccounts = function () {
-        var temp;
-        temp = (mv.selectedOriginAccount != undefined) ? mv.selectedOriginAccount : null;
-        mv.selectedOriginAccount = (mv.selectedDestinationAccount != undefined) ? mv.selectedDestinationAccount : null;
-        mv.selectedDestinationAccount = temp;
-    }
+            if (mv.actualDate) {
+                date = new Date();
+            }
+            var headers = {'X-XSRF-TOKEN': $cookies.get('XSRF-TOKEN')};
 
 
-    mv.openAccount = function (account) {
+            var newMVCall = $http({
+                method: 'POST',
+                url: 'http://localhost:8090/createMovement',
+                headers: headers,
+                withCredentials: true,
+                data: JSON.stringify({
+                    "origAccount": mv.selectedOriginAccount.id,
+                    "destAccount": mv.selectedDestinationAccount.id,
+                    "amount": mv.amount,
+                    "currency": mv.selectedCurrency.id,
+                    "currencyCotization": mv.currencyCotization,
+                    "movementDate": mv.date,
+                    "isActualDate": mv.actualDate,
+                    "category": mv.selectedCategory.id,
+                    "detail": mv.selectedDetail.id,
+                    "comment": mv.comment
+                })
+            });
+            PromiseUtils.getPromiseHttpResult(newMVCall)
+                .then(function (result) {
+                    resultJson = angular.fromJson(result.body);
+                    if (result.statusCode == "OK") {
+                        object = {
+                            Id: resultJson.object,
+                            Message: "Movement Successfully Saved",
+                            Style: 'alert-success',
+                            Movement: true
+                        };
+                        alertsManager.addAlert(object);
+                    }
+                    else {
+                        var jsError = {
+                            "title": "Error Creating Movement",
+                            "type": "error",
+                            "message": resultJson.message,
+                            "stackTrace": resultJson.stackTrace
+                        };
+                        alertsManager.showBootStrapModal(jsError);
+                    }
+                }, function (arguments) {
+                    var jsError = {
+                        "title": "Error Creating Movement",
+                        "type": "error",
+                        "message": "Connection Error, please retry."
+                    };
+                    alertsManager.showBootStrapModal(jsError);
+                    if (arguments[0] == null || arguments[0].status == 403) {
+                        $rootScope.$broadcast("authenticateConnection");
+                    }
+                });
 
-        if (mv.originAccounts.indexOf(account) != -1) {
-            $rootScope.$emit('loadReportFromOutside', account, 'account');
+        };
+
+
+        mv.undoMovement = function (movId) {
+            date = new Date();
+            var headers = {'X-XSRF-TOKEN': $cookies.get('XSRF-TOKEN')};
+
+            var deleteMVCall = $http({
+                method: 'POST',
+                url: 'http://localhost:8090/deleteMovement',
+                headers: headers,
+                withCredentials: true,
+                params: {movId: movId}
+            });
+            PromiseUtils.getPromiseHttpResult(deleteMVCall)
+                .then(function (result) {
+                    resultJson = angular.fromJson(result.body);
+                    if (result.statusCode == "OK") {
+                        object = {
+                            Message: 'Movement Successfully deleted',
+                            Style: 'alert-success',
+                            Movement: false
+                        };
+                        alertsManager.addAlert(object);
+
+                    }
+                    else {
+                        var jsError = {
+                            "title": "Error Creating Movement",
+                            "type": "error",
+                            "message": resultJson.message,
+                            "stackTrace": resultJson.stackTrace
+                        };
+                        alertsManager.showBootStrapModal(jsError);
+                    }
+                }, function (arguments) {
+                    var jsError = {
+                        "title": "Error Creating Movement",
+                        "type": "error",
+                        "message": "Connection Error, please retry.",
+                    };
+                    alertsManager.showBootStrapModal(jsError);
+                    if (arguments[0] == null || arguments[0].status == 403) {
+                        $rootScope.$broadcast("authenticateConnection");
+                    }
+                })
         }
-        else {
-            var jsError = {
-                "title": "Error Creating Account Report",
-                "type": "error",
-                "message": "Please, select an account."
-            };
-            alertsManager.showBootStrapModal(jsError)
+
+
+        mv.validCurrency = function () {
+
+            var originCurrency = mv.selectedOriginAccount.currency;
+            var destinationCurrency = mv.selectedDestinationAccount.currency;
+            var movementCurrency = mv.selectedCurrency;
+
+            if (destinationCurrency.id != movementCurrency.id && originCurrency.id != movementCurrency.id)
+                if (destinationCurrency.id == originCurrency.id)
+                    return "For creating a movement, you must select the currency of the Accounts.";
+                else if (originCurrency.id != destinationCurrency.id)
+                    return "For creating a movement, you must select the currency of one of the Accounts.";
+
+            return "";
         }
-    }
 
+        mv.requiresCurrencyCotization = function () {
 
-    mv.scrollWindow = function (scrollTo) {
-        $('html, body').animate({scrollTop: $(scrollTo).offset().top}, 500);
-    }
+            var originCurrency = mv.selectedOriginAccount.currency;
+            var destinationCurrency = mv.selectedDestinationAccount.currency;
+            var movementCurrency = mv.selectedCurrency;
 
+            if (destinationCurrency.id != originCurrency.id && (destinationCurrency.id == movementCurrency.id || originCurrency.id == movementCurrency.id)) {
 
-    ///////////////////////////////////////////////////////////////////////////////
-    /////////////////               OutSide Filter              ///////////////////
-    ///////////////////////////////////////////////////////////////////////////////
+                var currencyToCotize = destinationCurrency;
+                if (destinationCurrency.id == movementCurrency.id)
+                    currencyToCotize = originCurrency;
+                var messageToShow = "Define Cotization for " + currencyToCotize.symbol + ":";
 
-    mv.currentlyActiveCalls = 0;
+                var jsCurrencyCotization = {
+                    "title": "Select Cotization For Current Movement",
+                    "message": messageToShow,
+                    "movementCurrency": movementCurrency,
+                    "currencyToCotize": currencyToCotize
+                };
+                return alertsManager.currencyCotization(jsCurrencyCotization);
+            }
 
-    mv.activeCall = function (state) {
-        if (state == '+') {
-            mv.currentlyActiveCalls++;
+            return undefined;
         }
-        else {
-            mv.currentlyActiveCalls--;
+
+        mv.getElement = function (array, element) {
+            var returnObject;
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].id == element.id) {
+                    returnObject = array[i];
+                    break;
+                }
+            }
+            return returnObject;
         }
-        if (mv.currentlyActiveCalls == 0) {
-            mv.checkOutSideMovementFilter();
+
+
+        mv.exchangeAccounts = function () {
+            var temp;
+            temp = (mv.selectedOriginAccount != undefined) ? mv.selectedOriginAccount : null;
+            mv.selectedOriginAccount = (mv.selectedDestinationAccount != undefined) ? mv.selectedDestinationAccount : null;
+            mv.selectedDestinationAccount = temp;
         }
-    }
 
-    mv.outSideMovement = {
-        Movement: undefined
-    }
 
-    mv.checkOutSideMovementFilter = function () {
-        if (mv.outSideMovement.Movement != undefined) {
-            mv.selectedOriginAccount = mv.getElement(mv.originAccounts, mv.outSideMovement.Movement.origAccount);
-            mv.selectedDestinationAccount = mv.getElement(mv.destinationAccounts, mv.outSideMovement.Movement.destAccount);
-            mv.selectedCategory = mv.getElement(mv.categories, mv.outSideMovement.Movement.detail.category);
-            mv.getDetails(mv.outSideMovement.Movement.detail);
-            mv.amount = mv.outSideMovement.Movement.amount;
-            mv.selectedCurrency = mv.getElement(mv.currencies, mv.outSideMovement.Movement.currency);
-            mv.comment = mv.outSideMovement.Movement.commentary;
+        mv.openAccount = function (account) {
 
-            mv.outSideMovement.Movement = undefined;
-
-        } else {
-            mv.selectedCategory = mv.categories[0];
-            mv.getDetails();
-            mv.selectedDestinationAccount = mv.destinationAccounts [0];
-            mv.selectedOriginAccount = mv.originAccounts[1];
-            mv.selectedCurrency = mv.currencies[0];
+            if (mv.originAccounts.indexOf(account) != -1) {
+                $rootScope.$emit('loadReportFromOutside', account, 'account');
+            }
+            else {
+                var jsError = {
+                    "title": "Error Creating Account Report",
+                    "type": "error",
+                    "message": "Please, select an account."
+                };
+                alertsManager.showBootStrapModal(jsError)
+            }
         }
-    }
 
 
-    ///////////////////////////////////////////////////////////////////////////////
-    /////////////////                  Pick Date                ///////////////////
-    ///////////////////////////////////////////////////////////////////////////////
-    mv.openCalendar = function () {
-        mv.openedPopUp = true;
-    }
-    $scope.today = function () {
-        mv.date = new Date();
-    };
-    $scope.clear = function () {
-        mv.date = null;
-    };
-    mv.isValidDate = function (date) {
-        if (date != undefined) return true;
-        return false;
-    }
-
-    $scope.format = 'dd/MM/yyyy';
-    mv.minDate = new Date(1800, 1, 1);
-    mv.maxDate = new Date();
-
-
-    mv.updateDate = function (event, id, button) {
-        mv.actualDate = !mv.actualDate;
-        if (event.currentTarget.firstChild.textContent.indexOf("Past Date") != -1) {
-            event.currentTarget.firstChild.textContent = "Actual Date"
-            $("#date").attr('required', true);
+        mv.scrollWindow = function (scrollTo) {
+            $('html, body').animate({scrollTop: $(scrollTo).offset().top}, 500);
         }
-        else {
-            event.currentTarget.firstChild.textContent = "Past Date"
+
+
+///////////////////////////////////////////////////////////////////////////////
+/////////////////               OutSide Filter              ///////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+        mv.currentlyActiveCalls = 0;
+
+        mv.activeCall = function (state) {
+            if (state == '+') {
+                mv.currentlyActiveCalls++;
+            }
+            else {
+                mv.currentlyActiveCalls--;
+            }
+            if (mv.currentlyActiveCalls == 0) {
+                mv.checkOutSideMovementFilter();
+            }
+        }
+
+        mv.outSideMovement = {
+            Movement: undefined
+        }
+
+        mv.checkOutSideMovementFilter = function () {
+            if (mv.outSideMovement.Movement != undefined) {
+                mv.selectedOriginAccount = mv.getElement(mv.originAccounts, mv.outSideMovement.Movement.origAccount);
+                mv.selectedDestinationAccount = mv.getElement(mv.destinationAccounts, mv.outSideMovement.Movement.destAccount);
+                mv.selectedCategory = mv.getElement(mv.categories, mv.outSideMovement.Movement.detail.category);
+                mv.getDetails(mv.outSideMovement.Movement.detail);
+                mv.amount = mv.outSideMovement.Movement.amount;
+                mv.selectedCurrency = mv.getElement(mv.currencies, mv.outSideMovement.Movement.currency);
+                mv.comment = mv.outSideMovement.Movement.commentary;
+
+                mv.outSideMovement.Movement = undefined;
+
+            } else {
+                mv.selectedCategory = mv.categories[0];
+                mv.getDetails();
+                mv.selectedDestinationAccount = mv.destinationAccounts [0];
+                mv.selectedOriginAccount = mv.originAccounts[1];
+                mv.selectedCurrency = mv.currencies[0];
+            }
+        }
+
+
+///////////////////////////////////////////////////////////////////////////////
+/////////////////                  Pick Date                ///////////////////
+///////////////////////////////////////////////////////////////////////////////
+        mv.openCalendar = function () {
+            mv.openedPopUp = true;
+        }
+        $scope.today = function () {
             mv.date = new Date();
-            $("#date").removeAttr('required');
+        };
+        $scope.clear = function () {
+            mv.date = null;
+        };
+        mv.isValidDate = function (date) {
+            if (date != undefined) return true;
+            return false;
         }
-    };
+
+        $scope.format = 'dd/MM/yyyy';
+        mv.minDate = new Date(1800, 1, 1);
+        mv.maxDate = new Date();
 
 
-});
+        mv.updateDate = function (event, id, button) {
+            mv.actualDate = !mv.actualDate;
+            if (event.currentTarget.firstChild.textContent.indexOf("Past Date") != -1) {
+                event.currentTarget.firstChild.textContent = "Actual Date"
+                $("#date").attr('required', true);
+            }
+            else {
+                event.currentTarget.firstChild.textContent = "Past Date"
+                mv.date = new Date();
+                $("#date").removeAttr('required');
+            }
+        }});
+
 

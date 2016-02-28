@@ -32,6 +32,11 @@
     display:block;
     margin: 0 auto;
 }
+.center {
+    margin: 0 auto;
+    align: center;
+    text-align: center;
+}
 .showNewLine {
     white-space: pre-line;
 }
@@ -207,56 +212,68 @@ input:focus:invalid, textarea:focus:invalid, select:focus:invalid {
 textarea {
     resize: none;
 }
-
-
-.modal-header-error {
+.modal-header {
     padding: 1px 15px;
     border-bottom: 2px solid #eee;
+}
+.modal-body {
+    position: relative;
+    max-height: 1000px;
+    padding: 15px;
+    overflow-y: auto;
+    white-space: pre-line;
+}
+.modal-footer {
+    padding: 5px 10px 10px 15px;
+    margin-bottom: 0;
+    text-align: right;
+}
+.modal-header-error {
     color: #b94a48;
     background-color: #f2dede;
     border-color: #eed3d7
 }
-
+.modal-body-error {
+    color: #b94a48;
+    background-color: #f2dede;
+    border-color: #eed3d7;
+}
+.modal-footer-error {
+    background-color: #f2dede;
+    border-color: #eed3d7
+}
 .modal-header-success {
-    padding: 5px 15px;
-    border-bottom: 1px solid #eee;
     color: #468847;
     background-color: #dff0d8;
     border-color: #d6e9c6
 }
-.modal-body-error {
-    position: relative;
-    max-height: 1000px;
-    padding: 15px;
-    overflow-y: auto;
-    color: #b94a48;
-    background-color: #f2dede;
-    border-color: #eed3d7;
-    white-space: pre-line;
-}
 .modal-body-success {
-    position: relative;
-    max-height: 1000px;
-    padding: 15px;
-    overflow-y: auto;
     color: #b94a48;
     background-color: #dff0d8;
     border-color: #d6e9c6;
     white-space: pre-line;
-}
-.modal-footer-error {
-    padding: 0px 15px 15px;
-    margin-bottom: 0;
-    text-align: right;
-    background-color: #f2dede;
-    border-color: #eed3d7
 }
 .modal-footer-success {
-    padding: 0px 15px 15px;
-    margin-bottom: 0;
-    text-align: right;
     background-color: #dff0d8;
     border-color: #d6e9c6;
+}
+
+.modal-header-currency {
+    color: white;
+    background-color: grey;
+    border-color: white;
+}
+.modal-body-currency {
+
+    background-color: white;
+    border-color: grey;
+    white-space: pre-line;
+    padding-bottom: 5px;
+}
+.modal-footer-currency {
+    background-color: grey;
+    border-color: white;
+
 }
 .popover{
     min-width: 100%; /* Max Width of the popover (depending on the container!) */

@@ -216,7 +216,8 @@ app.controller('reportController', function (NgTableParams, $anchorScroll, $loca
                     rp.series = ['Account History Sadder'];
                 }
                 else {
-                    jsError["message"] = "Error getting Report. Error: " + result.message;
+                    jsError["message"] = resultJson.message;
+                    jsError["stackTrace"] = resultJson.stackTrace;
                     alertsManager.showBootStrapModal(jsError)
                 }
             }, function (arguments) {

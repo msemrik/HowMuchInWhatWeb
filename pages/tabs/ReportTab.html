@@ -104,11 +104,11 @@
                             <td title="'Orig Account'" sortable="'origAccount.name'"><a
                                     ng-click="rp.openAccountReport(movements.origAccount)">{{movements.origAccount.name}}</a>
                             </td>
-                            <td title="'Orig Sadder'" sortable="'origSadder'">{{movements.origSadder}}</td>
+                            <td title="'Orig Sadder'" sortable="'origSadder'">{{movements.origAccount.currency.symbol}} {{ movements.origSadder | number : 2}}</td>
                             <td title="'Dest Account'" sortable="'destAccount.name'"><a
                                     ng-click="rp.openAccountReport(movements.destAccount)">{{movements.destAccount.name}}</a>
                             </td>
-                            <td title="'Dest Sadder'" sortable="'origAccount'">{{movements.destSadder}}</td>
+                            <td title="'Dest Sadder'" sortable="'origAccount'">{{movements.destAccount.currency.symbol}} {{ movements.destSadder | number : 2}}</td>
                             <td title="'Category'" sortable="'detail.category.name'">
                                 {{movements.detail.category.name}}
                             </td>

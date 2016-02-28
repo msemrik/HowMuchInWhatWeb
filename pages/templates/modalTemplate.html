@@ -1,0 +1,15 @@
+<div ng-class="headerclass">
+    <h3 class="modal-title">{{title}}</h3>
+</div>
+<div ng-class="bodyclass">
+    {{message}}
+</div>
+<div ng-class="footerclass">
+    <button ng-show="isError" class="btn btn-warning" type="button" ngclipboard data-clipboard-text={{stackTrace}}">Copy Exception To Clipboard</button>
+    <button ng-show="isError" class="btn btn-warning" type="button" ng-click="showHideStackTrace()">Show Complete Exception</button>
+    <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+</div>
+<div ng-show="showStackTrace">
+    <pre>{{stackTrace}}</pre>
+</div>
+
